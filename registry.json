@@ -1,0 +1,13 @@
+{
+  "registries": [
+    {
+      "uri": "081522272738.dkr.ecr.us-west-1.amazonaws.com",
+      "region": "us-west-1",
+      "aws": true,
+      "secrets": {
+        "aws_access_key_id": "$AWS_ACCESS_KEY_ID",
+        "aws_secret_access_key": "$AWS_SECRET_ACCESS_KEY"
+      }
+    }
+  ]
+}

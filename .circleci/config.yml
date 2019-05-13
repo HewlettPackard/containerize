@@ -2,20 +2,31 @@
 version: 2.1
 
 jobs:
-  env:
+  ctrz:
     docker:
-      - image: docker:18.09.6-git
+      - image: circleci/python:3.7.3-stretch
     steps:
       - checkout
+      - setup_remote_docker
       - run:
-          name: Environment Info
-          command: env
+          name: Install aws-cli
+          command: |
+            pip install --user awscli==1.16.156
+      - run:
+          name: Make awscli available
+          command: |
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+      - run:
+          name: Build and publish image
+          command: |
+            ./containerize.sh -p
 
 workflows:
   version: 2
   build_docker_image:
     jobs:
-      - env:
-          filters:
-            tags:
-              only: /.*/
+    - ctrz:
+        context: ecr-2738
+        filters:
+          tags:
+            only: /.*/
