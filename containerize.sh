@@ -54,6 +54,9 @@ name_version() {
     if [ -z $version ] ; then
       version=$(echo $DRONE_TAG | xargs)
     fi
+    if [ -z $version ] ; then
+      version=$(echo $CIRCLE_TAG | xargs)
+    fi
     if [ -z $version ] && [ -n $DRONE_BRANCH ] ; then
       version=$(echo $DRONE_BRANCH | xargs)
     fi
