@@ -389,6 +389,69 @@ export_image() {
     fi
 }
 
+apply_ecr_policy() {
+  if [ $# -ne 1 ]; then
+    echo "Internal Error: $0 requires 1 argument" 1>&2
+  fi
+  local repo
+  repo="$1"
+
+  if [ -n "$TARGET_ACCOUNTS" ]; then
+    echo "Begin validation/correction of aws ecr policy of $repo for $TARGET_ACCOUNTS" 1>&2
+  else
+    echo "No TARGET_ACCOUNTS to apply ECR policy" 1>&2
+  fi
+
+  local TARGET_ACCOUNT
+  for TARGET_ACCOUNT in ${TARGET_ACCOUNTS/,/ }; do
+    local ARN_STRING="arn:aws:iam::$TARGET_ACCOUNT:root"
+    local NEW_POLICY=$(echo "
+    {
+      \"Sid\": \"$TARGET_ACCOUNT\",
+      \"Effect\": \"Allow\",
+      \"Principal\": {
+        \"AWS\": \"arn:aws:iam::$TARGET_ACCOUNT:root\"
+      },
+      \"Action\": [
+        \"ecr:GetDownloadUrlForLayer\",
+        \"ecr:BatchGetImage\",
+        \"ecr:BatchCheckLayerAvailability\",
+        \"ecr:ListImages\",
+        \"ecr:DescribeRepositories\",
+        \"ecr:DescribeImages\"
+      ]
+    }")
+
+    local CURRENT_POLICY=$( aws ecr get-repository-policy --output json --repository-name $repo 2>&1 || true )
+    local NON_EXISTENT=$( echo $CURRENT_POLICY | grep -c RepositoryPolicyNotFoundException 2>&1 || true )
+    if [ $NON_EXISTENT -gt 0 ] ; then
+      echo "Repository $repo has no policy currently set" 1>&2
+      local BASE='{"policyText":"{\"Statement\":[]}"}'
+    else
+      BASE=$CURRENT_POLICY
+    fi
+
+    local TARGET_EXISTS=$( echo $BASE | jq -cr .policyText  |jq --arg account $ARN_STRING '.Statement[] | select( .Principal.AWS == $account )' 2>/dev/null || echo "")
+    if [ -n "$TARGET_EXISTS" ] ; then
+      # TODO Overwrite the actions
+      echo "policy already exists for account=$TARGET_ACCOUNT at $repo" 1>&2
+      continue
+    fi
+    local POLICY_TEXT="$(echo $BASE | jq -cr .policyText | jq -c --argjson NEW $(echo $NEW_POLICY | jq -r '. | @json' ) '.Statement |= . + [$NEW]')"
+    local FINAL_COMPLETE=$(echo $BASE | jq --arg policy "$(echo $POLICY_TEXT | jq -r '. | @json')" '.policyText=$policy')
+    aws ecr set-repository-policy --repository-name=$repo --cli-input-json "$FINAL_COMPLETE" 1>&2
+    while [ 1 ]; do
+      set +e
+      local CHECK_POLICY=$( aws ecr get-repository-policy --repository-name $repo | grep -c $TARGET_ACCOUNT )
+      set -e
+      if [ $CHECK_POLICY -gt 0 ]; then
+        break
+      fi
+      sleep .1
+    done
+  done
+}
+
 # Registry file precedence
 # 1. -f option
 # 2. user reg file
@@ -524,6 +587,10 @@ if [ "$publish" = true ] && [ -n "$FILE" ]; then
             if [ $? -eq 0 ]; then
                 $VERBOSE && set -x
                 publish $reg_info $REPO $VERSION
+                is_aws=$(jq -r .aws <<< $reg_info)
+                if [ "$is_aws" = true ]; then
+                    apply_ecr_policy $REPO
+                fi
             fi
         done
         $VERBOSE && set -x
