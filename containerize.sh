@@ -475,6 +475,21 @@ BUILD_DATE=$(date -u)
 # '|| echo' is to ignore missing Dockerfile.*
 DOCKERFILES=${DOCKERFILE_OVERRIDE:-$(ls Dockerfile Dockerfile.* 2>/dev/null || echo )}
 
+if [ "$build" = true ] && [ -n "$FILE" ]; then
+    REG_FILE=$(readlink -e "$FILE")
+    echo "Registry info for login found in $REG_FILE" 1>&2
+    for reg_info in $(jq -c .registries[] "$REG_FILE"); do
+        for DOCKERFILE in $DOCKERFILES; do
+            TAG=$(get_tag $DOCKERFILE)
+            REPO=$(cut -d ':' -f 1 <<< $TAG)
+            set +e +x
+            login $reg_info $REPO
+            $VERBOSE && set -x
+            set -e
+        done
+    done
+fi
+
 if [ "$build" = true ]; then
     for DOCKERFILE in $DOCKERFILES; do
         TAG=$(get_tag $DOCKERFILE)
@@ -498,19 +513,19 @@ fi
 if [ "$publish" = true ] && [ -n "$FILE" ]; then
     REG_FILE=$(readlink -e "$FILE")
     for reg_info in $(cat "$REG_FILE" | jq -c .registries[]); do
-            for DOCKERFILE in $DOCKERFILES; do
-                TAG=$(get_tag $DOCKERFILE)
-                VERSION=$(cut -d ':' -f 2 <<< $TAG)
-                REPO=$(cut -d ':' -f 1 <<< $TAG)
+        for DOCKERFILE in $DOCKERFILES; do
+            TAG=$(get_tag $DOCKERFILE)
+            VERSION=$(cut -d ':' -f 2 <<< $TAG)
+            REPO=$(cut -d ':' -f 1 <<< $TAG)
 
-                # Since repo may differ per dockerfile if TAG_AS_SUBDIR is set
-                set +e +x
-                login $reg_info $REPO
-                if [ $? -eq 0 ]; then
-                    $VERBOSE && set -x
-                    publish $reg_info $REPO $VERSION
-                fi
-            done
+            # Since repo may differ per dockerfile if TAG_AS_SUBDIR is set
+            set +e +x
+            login $reg_info $REPO
+            if [ $? -eq 0 ]; then
+                $VERBOSE && set -x
+                publish $reg_info $REPO $VERSION
+            fi
+        done
         $VERBOSE && set -x
         set -e
     done
