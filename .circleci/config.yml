@@ -22,7 +22,6 @@ jobs:
             ./containerize.sh -p
 
 workflows:
-  version: 2
   build_docker_image:
     jobs:
     - ctrz:
