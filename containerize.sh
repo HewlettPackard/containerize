@@ -138,7 +138,7 @@ build_image() {
       --build-arg http_proxy=$http_proxy \
       --build-arg https_proxy=$https_proxy \
       --build-arg no_proxy=$no_proxy \
-      --build-arg GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN \
+      --build-arg GITHUB_TOKEN=$GITHUB_TOKEN \
       --build-arg TAG="$tag" \
       --build-arg BUILD_DATE="$BUILD_DATE" \
       --build-arg GIT_DESCRIBE=$GIT_DESCRIBE \
