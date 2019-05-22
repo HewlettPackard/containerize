@@ -314,7 +314,8 @@ login_aws_create_repo() {
       return 1
     fi
 
-    login="$(aws ecr get-login --no-include-email --region $region | tr -d '\r')"
+    local aws_acct_id=${registry%%\.*}
+    login="$(aws ecr get-login --no-include-email --region $region --registry-ids $aws_acct_id | tr -d '\r')"
     echo "Attempt login to $registry"
     eval "$login"
     if [ $? -ne 0 ]; then
@@ -552,6 +553,7 @@ if [ "$build" = true ] && [ -n "$FILE" ]; then
             login $reg_info $REPO
             $VERBOSE && set -x
             set -e
+            break
         done
     done
 fi
