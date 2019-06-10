@@ -96,7 +96,7 @@ name_src_repo() {
     if [ -z $SRC_REPO ] ; then
       SRC_REPO=$(git config --local remote.origin.url)
     fi
-    echo $SRC_REPO
+    echo ${SRC_REPO:="unknown"}
 }
 
 name_git_describe() {
@@ -113,8 +113,8 @@ name_git_describe() {
 # always return the bare SHA1 for a repo
 get_git_sha() {
     local GIT_SHA
-    GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo "error")
-    echo $GIT_SHA
+    GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo)
+    echo ${GIT_SHA}
 }
 
 build_image() {
@@ -407,7 +407,7 @@ apply_ecr_policy() {
   fi
 
   local TARGET_ACCOUNT
-  for TARGET_ACCOUNT in ${TARGET_ACCOUNTS/,/ }; do
+  for TARGET_ACCOUNT in ${TARGET_ACCOUNTS//,/ }; do
     local ARN_STRING="arn:aws:iam::$TARGET_ACCOUNT:root"
     local NEW_POLICY=$(echo "
     {
