@@ -9,7 +9,7 @@ trap - INT TERM
 
 show_help() {
     echo "Usage:"
-    echo "    $0 [-f|file <file>] [-p|--publish] [-P|--publish-only] [-q|--quiet] [-v|--verbose] [--no-pull] [-d|--dockerfile <dockerfile>] [-t|--tag-as-subdir]"
+    echo "    $0 [-f|file <file>] [-p|--publish] [-P|--publish-only] [-q|--quiet] [-l|--list] [-v|--verbose] [--no-pull] [-d|--dockerfile <dockerfile>] [-t|--tag-as-subdir]"
     echo "    $0 [-h|--help]"
 }
 
@@ -491,6 +491,9 @@ while [ $# -gt 0 ] ; do
         -q|--quiet)
             QUIET=true
             ;;
+        -l|--list)
+            LIST=true
+            ;;
         -d|--dockerfile)
             shift
             DOCKERFILE_OVERRIDE=$1
@@ -528,6 +531,16 @@ if [[ $QUIET == true ]] ; then
     exit 0
 fi
 
+# '|| echo' is to ignore missing Dockerfile.*
+DOCKERFILES=${DOCKERFILE_OVERRIDE:-$(ls Dockerfile Dockerfile.* 2>/dev/null || echo )}
+if [[ $LIST == true ]] ; then
+    for DOCKERFILE in $DOCKERFILES; do
+        TAG=$(get_tag $DOCKERFILE)
+        echo $TAG
+    done
+    exit 0
+fi
+
 # Not doing a publish on pull_request
 if [ "$publish" = true ] && ([ "${DRONE_EVENT}" = "pull_request" ] || [ "${DRONE_BUILD_EVENT}" = "pull_request" ]) ; then
     echo "Warning: Publish is disabled for pull requests" 1>&2
@@ -538,9 +551,6 @@ SRC_REPO=$(name_src_repo)
 GIT_DESCRIBE=$(name_git_describe)
 GIT_SHA=$(get_git_sha)
 BUILD_DATE=$(date -u)
-
-# '|| echo' is to ignore missing Dockerfile.*
-DOCKERFILES=${DOCKERFILE_OVERRIDE:-$(ls Dockerfile Dockerfile.* 2>/dev/null || echo )}
 
 if [ "$build" = true ] && [ -n "$FILE" ]; then
     REG_FILE=$(readlink -e "$FILE")

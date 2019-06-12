@@ -11,6 +11,9 @@ This is a set of criteria to determine if this project is ready to release.
    1. Dockerfile
    1. Dockerfile.xyz
    1. xyz/Dockerfile
+1. Test that `-l|--list works`
+   1. With a repo having a single Dockerfile
+   1. With a repo having multiple Dockerfiles
 1. Test that `-t|--tag-as-subdir` works
    1. Dockerfile (tag should have no change, same with or without -t)
    1. Dockerfile.xyz (tag should be org/repo-xyz:version
