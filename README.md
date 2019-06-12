@@ -21,6 +21,7 @@ The container version is generated based on the following precedence:
  1. The string `unknown`
 
 ## Requires
+ 1. A .git directory in CWD or parent path
  1. One or more Dockerfiles in the project at the current working directory.
     1. File names match: `Dockerfile` and `Dockerfile.*`
     1. Dockerfiles SHOULD contain:
@@ -66,7 +67,7 @@ Follow this example showing an unsecure private registry, a secure private regis
     1. Build it from source: `./containerize.sh`
     1. Pull from registry: `docker pull containerize:latest`
  1. `cd <project_dir>`
- 1. `docker run --init --rm --workdir="$PWD" -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":"$PWD" -e HTTP_PROXY -e HTTPS_PROXY -e NO_PROXY -e http_proxy -e https_proxy -e no_proxy containerize`
+ 1. `docker run --init --rm --workdir="$PWD" -v $HOME/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":"$PWD" -e HTTP_PROXY -e HTTPS_PROXY -e NO_PROXY -e http_proxy -e https_proxy -e no_proxy containerize`
 
 ### Drone
 ```
@@ -80,3 +81,10 @@ build:
     commands:
       - containerize.sh --publish
 ```
+
+### Issues and Troubleshooting
+  1. Docker login not working: 
+     1. Identification: `WARNING: Error loading config file: .docker/config.json: open .docker/config.json: permission denied`
+     1. Cause: If `docker login` has not previously been run then the `$HOME/.docker/config.json` file will not exist.
+        Executing this tool will create it but may create it with root ownership.
+     1. Solution: `sudo rm -f $HOME/.docker/config.json` and then run docker login again.

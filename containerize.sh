@@ -560,7 +560,9 @@ if [ "$build" = true ] && [ -n "$FILE" ]; then
             TAG=$(get_tag $DOCKERFILE)
             REPO=$(cut -d ':' -f 1 <<< $TAG)
             set +e +x
-            login $reg_info $REPO
+            if [[ $CIRCLECI = true ]] ; then
+                login $reg_info $REPO
+            fi
             $VERBOSE && set -x
             set -e
             break
