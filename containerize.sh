@@ -573,7 +573,7 @@ fi
 if [ "$build" = true ]; then
 
     if [ $(echo $DOCKERFILES | wc -w) -gt 1 ]; then
-      echo "WARNING: Multiple Dockerfiles will be built: '"$DOCKERFILES"'" 1>&2
+      echo "WARNING: Multiple Dockerfiles will be built: '"$DOCKERFILES"'. If building in CI this should be parallelized." 1>&2
     fi
     for DOCKERFILE in $DOCKERFILES; do
         TAG=$(get_tag $DOCKERFILE)
