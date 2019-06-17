@@ -1,17 +1,64 @@
 # CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
 version: 2.1
 
+filter_on_all_events: &filter_on_all_events
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      only: /.*/
+
+attach: &attach
+  attach_workspace:
+    at: ~/project
+
+#-----------------
+workflows:
+  build_docker_image:
+    jobs:
+      - checkout-workspace:
+          <<: *filter_on_all_events
+      - copyright-check:
+          requires:
+            - checkout-workspace
+          context: ecr-6644
+      - build-publish-image:
+          requires:
+            - checkout-workspace
+          context: ecr-6644
+          <<: *filter_on_all_events
+
+#-----------------
 jobs:
-  ctrz:
+  checkout-workspace:
     docker:
       - image: circleci/python:3.7.3-stretch
     steps:
       - checkout
+      - persist_to_workspace:
+          root: ~/project
+          paths: [ '.' ]
+
+  copyright-check:
+    docker:
+      - image: 657273346644.dkr.ecr.us-east-1.amazonaws.com/hpe-hcss/copyright-tool:0.0.5
+    steps:
+      - <<: *attach
+      - run:
+          name: Check copyright
+          command: |
+            copyright-checker.sh --check
+
+  build-publish-image:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+    steps:
+      - <<: *attach
       - setup_remote_docker
       - run:
           name: Install aws-cli
           command: |
-            pip install --user awscli==1.16.156
+            pip install --user awscli==1.16.176
       - run:
           name: Make awscli available
           command: |
@@ -20,12 +67,3 @@ jobs:
           name: Build and publish image
           command: |
             ./containerize.sh -p
-
-workflows:
-  build_docker_image:
-    jobs:
-    - ctrz:
-        context: ecr-2738
-        filters:
-          tags:
-            only: /.*/

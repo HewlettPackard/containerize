@@ -1,8 +1,8 @@
 {
   "registries": [
     {
-      "uri": "081522272738.dkr.ecr.us-west-1.amazonaws.com",
-      "region": "us-west-1",
+      "uri": "657273346644.dkr.ecr.us-east-1.amazonaws.com",
+      "region": "us-east-1",
       "aws": true,
       "secrets": {
         "aws_access_key_id": "$AWS_ACCESS_KEY_ID",
