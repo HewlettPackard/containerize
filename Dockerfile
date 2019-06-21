@@ -17,7 +17,7 @@ RUN apk add --no-cache --update \
 
 RUN pip3 install awscli --upgrade
 
-COPY containerize.sh /usr/bin
+COPY containerize.sh set-read-for-aws-ecr.sh /usr/bin/
 COPY registry.json /usr/bin
 COPY login.sh /usr/bin
 
