@@ -339,7 +339,7 @@ login_aws_create_repo() {
             exit 1
         fi
         export REPOSITORY=$repo
-        set-read-for-aws-ecr.sh $TARGET_ACCOUNTS
+        set-read-for-aws-ecr.sh
         if [ $? -gt 0 ]; then
             echo "Error: Problem setting read-only policy on '$registry"/"$repo'" 1>&2
             exit 1
