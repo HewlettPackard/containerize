@@ -1,5 +1,5 @@
 # Copyright 2017-2019 Hewlett Packard Enterprise Development LP
-FROM docker:18.09.7-git
+FROM docker:18.09.8-git
 
 RUN apk add --no-cache --update \
     bash \
