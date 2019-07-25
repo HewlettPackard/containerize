@@ -51,6 +51,9 @@ name_version() {
     if [ ! -z $DRONE_PULL_REQUEST ] ; then
       version=pr${DRONE_PULL_REQUEST}
     fi
+    if [ -n "$CIRCLE_PULL_REQUEST" ] ; then
+      version=pr${CIRCLE_PULL_REQUEST##*/}
+    fi
     if [ -z $version ] ; then
       version=$(echo $DRONE_TAG | xargs)
     fi
