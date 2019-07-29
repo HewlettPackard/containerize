@@ -547,7 +547,8 @@ if [ "$SCAN" = true ] ; then
     DOCKERFILE=${DOCKERFILE_OVERRIDE:=Dockerfile}
     TAG=$(get_tag $DOCKERFILE)
     echo "Starting dockle scan for: $TAG"
-    dockle --exit-code=1 $TAG
+    # CIS-DI-0005: Docker content trust will fail if using public images
+    dockle --exit-code=1 -i CIS-DI-0005 $TAG
 fi
 
 if [ "$publish" = true ] && [ -n "$FILE" ]; then

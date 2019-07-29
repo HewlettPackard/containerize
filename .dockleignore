@@ -1,0 +1,2 @@
+# Need to run as root to avoid modification of host groups
+CIS-DI-0001

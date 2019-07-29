@@ -13,7 +13,6 @@ RUN apk add --no-cache --update \
     moreutils \
     openssh \
     python3 \
-    sudo \
     tar \
     unzip
 
@@ -28,6 +27,7 @@ COPY registry.json /usr/bin
 COPY login.sh /usr/bin
 
 ENTRYPOINT ["containerize.sh"]
+HEALTHCHECK NONE
 
 ARG TAG
 ARG GIT_DESCRIBE
