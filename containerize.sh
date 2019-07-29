@@ -9,7 +9,7 @@ trap - INT TERM
 
 show_help() {
     echo "Usage:"
-    echo "    $0 [-f|file <file>] [-p|--publish] [-P|--publish-only] [-q|--quiet] [-l|--list] [-v|--verbose] [--no-pull] [-d|--dockerfile <dockerfile>] [-t|--tag-as-subdir]"
+    echo "    $0 [-f|file <file>] [-p|--publish] [-P|--publish-only] [-q|--quiet] [-l|--list] [-s|--scan] [-v|--verbose] [--no-pull] [-d|--dockerfile <dockerfile>] [-t|--tag-as-subdir]"
     echo "    $0 [-h|--help]"
 }
 
@@ -440,6 +440,9 @@ while [ $# -gt 0 ] ; do
         -l|--list)
             LIST=true
             ;;
+        -s|--scan)
+            SCAN=true
+            ;;
         -d|--dockerfile)
             shift
             DOCKERFILE_OVERRIDE=$1
@@ -538,6 +541,13 @@ if [ "$build" = true ]; then
         echo "SRC_REPO = $SRC_REPO"
         echo "--------------------------------------"
     done
+fi
+
+if [ "$SCAN" = true ] ; then
+    DOCKERFILE=${DOCKERFILE_OVERRIDE:=Dockerfile}
+    TAG=$(get_tag $DOCKERFILE)
+    echo "Starting dockle scan for: $TAG"
+    dockle --exit-code=1 $TAG
 fi
 
 if [ "$publish" = true ] && [ -n "$FILE" ]; then
