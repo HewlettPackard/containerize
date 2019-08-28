@@ -1,5 +1,5 @@
 # Copyright 2017-2019 Hewlett Packard Enterprise Development LP
-FROM goodwithtech/dockle:v0.1.15 as dockle
+FROM goodwithtech/dockle:v0.1.16 as dockle
 
 FROM docker:19.03-git
 
