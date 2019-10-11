@@ -39,16 +39,6 @@ jobs:
           root: ~/project
           paths: [ '.' ]
 
-  copyright-check:
-    docker:
-      - image: 657273346644.dkr.ecr.us-east-1.amazonaws.com/hpe-hcss/copyright-tool:0.0.5
-    steps:
-      - <<: *attach
-      - run:
-          name: Check copyright
-          command: |
-            copyright-checker.sh --check
-
   build-publish-image:
     docker:
       - image: circleci/python:3.7.3-stretch

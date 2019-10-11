@@ -19,11 +19,9 @@ RUN apk add --no-cache --update \
 RUN pip3 install awscli --upgrade
 
 COPY --from=dockle /usr/local/bin/dockle /usr/local/bin/dockle
-
 COPY --from=docker.bintray.io/jfrog/jfrog-cli-go:1.26.1 /usr/local/bin/jfrog /usr/bin
-
-COPY containerize.sh set-read-for-aws-ecr.sh /usr/bin/
-COPY registry.json /usr/bin
+COPY containerize.sh /usr/bin/
+COPY set-read-for-aws-ecr.sh /usr/bin/
 COPY login.sh /usr/bin
 
 ENTRYPOINT ["containerize.sh"]
