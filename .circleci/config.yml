@@ -18,14 +18,9 @@ workflows:
     jobs:
       - checkout-workspace:
           <<: *filter_on_all_events
-      - copyright-check:
-          requires:
-            - checkout-workspace
-          context: ecr-6644
       - build-publish-image:
           requires:
             - checkout-workspace
-          context: ecr-6644
           <<: *filter_on_all_events
 
 #-----------------
