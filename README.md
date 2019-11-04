@@ -1,6 +1,6 @@
 <!-- (c) Copyright 2017-2019 Hewlett Packard Enterprise Development LP -->
 
-# Containerize (create-container)
+# Containerize (create-container-image)
 Create, tag, and optionally publish a container for a GIT repository.
 
 The container tag has the format:
