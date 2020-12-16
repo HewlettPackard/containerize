@@ -1,7 +1,7 @@
 # Copyright 2017-2019 Hewlett Packard Enterprise Development LP
 FROM goodwithtech/dockle:v0.2.1 as dockle
 
-FROM docker:19.03-git
+FROM docker:20.10.1-git
 
 RUN apk add --no-cache --update \
     bash \
