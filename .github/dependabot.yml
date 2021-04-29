@@ -1,0 +1,11 @@
+version: 2
+updates:
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: docker
+    versions:
+    - 20.10.2.pre.git
